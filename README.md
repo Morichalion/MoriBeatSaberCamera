@@ -10,6 +10,8 @@ Give me a heads up on what kind of features I should add.
 
 2. Place the MoriBScam.dll in ~/Documents/LIV/Plugins/CameraBehaviours
 
+3. Ensure that HTTP status is installed for Beat Saber. Over here: https://github.com/opl-/beatsaber-http-status
+
 3. Run LIV, select Plugins -> 'Mori's Beat Saber Cam'.
 
 4. Profit. 
