@@ -370,7 +370,7 @@ public class MoriBScam : IPluginCameraBehaviour {
     public void debug(string str)
     {
         /*
-        using (var sw = new StreamWriter(@"C:\Users\thelr\Desktop\errorMessages.txt", true))
+        using (var sw = new StreamWriter(@"C:\Path\To\Your\errorMessages.txt", true))
         {
             sw.WriteLine(str);
         }
