@@ -1,0 +1,15 @@
+C:\Users\thelr\Documents\ExamplePluginCameraBehaviour\bin\ExamplePluginCameraBehaviour.dll
+C:\Users\thelr\Documents\ExamplePluginCameraBehaviour\bin\websocket-sharp.dll
+C:\Users\thelr\Documents\ExamplePluginCameraBehaviour\obj\x64\Plugin\MoriBScam.csprojAssemblyReference.cache
+C:\Users\thelr\Documents\ExamplePluginCameraBehaviour\obj\x64\Plugin\MoriBScam.csproj.CopyComplete
+C:\Users\thelr\Documents\ExamplePluginCameraBehaviour\obj\x64\Plugin\ExamplePluginCameraBehaviour.dll
+C:\Users\thelr\Documents\Vis Studio projects\ExamplePluginCameraBehaviour\bin\ExamplePluginCameraBehaviour.dll
+C:\Users\thelr\Documents\Vis Studio projects\ExamplePluginCameraBehaviour\bin\websocket-sharp.dll
+C:\Users\thelr\Documents\Vis Studio projects\ExamplePluginCameraBehaviour\obj\x64\Plugin\MoriBScam.csprojAssemblyReference.cache
+C:\Users\thelr\Documents\Vis Studio projects\ExamplePluginCameraBehaviour\obj\x64\Plugin\MoriBScam.csproj.CopyComplete
+C:\Users\thelr\Documents\Vis Studio projects\ExamplePluginCameraBehaviour\obj\x64\Plugin\ExamplePluginCameraBehaviour.dll
+C:\Users\thelr\Documents\Vis Studio projects\MoriBScam\bin\MoriBScam.dll
+C:\Users\thelr\Documents\Vis Studio projects\MoriBScam\bin\websocket-sharp.dll
+C:\Users\thelr\Documents\Vis Studio projects\MoriBScam\obj\x64\Plugin\MoriBScam.csprojAssemblyReference.cache
+C:\Users\thelr\Documents\Vis Studio projects\MoriBScam\obj\x64\Plugin\MoriBScam.csproj.CopyComplete
+C:\Users\thelr\Documents\Vis Studio projects\MoriBScam\obj\x64\Plugin\MoriBScam.dll
