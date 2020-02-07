@@ -318,10 +318,6 @@ public class MoriBScam : IPluginCameraBehaviour {
         {
             headTarget.transform.rotation = headTransform.rotation;
         }
-        if (Math.Abs(headTarget.transform.position.y - headTransform.position.y) > 0.2f)
-        {
-
-        }
         if (phase == 0)
         {
             //Menu camera
