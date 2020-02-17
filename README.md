@@ -14,9 +14,11 @@ Give me a heads up on what kind of features I should add.
 
 3. Ensure that HTTP status is installed for Beat Saber. Over here: https://github.com/opl-/beatsaber-http-status
 
-3. Run LIV, select Plugins -> 'Mori's Beat Saber Cam'.
+5. Run LIV, select Plugins -> 'Mori's Beat Saber Cam'.
 
-4. Profit. 
+6. Review the config file (if you want the overlay and/or twitch commands).
+
+6. Profit. 
 
 # Configuration
 The config file is created at ~Documents\LIV\Plugins\CameraBehaviours\MoriBScam\ini.txt on the first run of the plugin. Directions should be printed in a fairly easy-to-understand way.
