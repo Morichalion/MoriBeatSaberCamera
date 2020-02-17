@@ -17,4 +17,6 @@ Give me a heads up on what kind of features I should add.
 4. Profit. 
 
 # Configuration
-The config file is created at ~Documents/LIV/MoriBScam/ini.txt on the first run of the plugin. 
+The config file is created at ~Documents\LIV\Plugins\CameraBehaviours\MoriBScam\ini.txt on the first run of the plugin. Directions should be printed in a fairly easy-to-understand way.
+
+The overlay and twitch integration is off by default.
