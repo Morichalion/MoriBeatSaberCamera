@@ -5,7 +5,7 @@ With this script selected, the camera will switch from a standard selfie-style c
 
 There's also an overlay for your current score, and a way for twitch viewers to change your game camera in real time. 
 
-Give me a heads up on what kind of features I should add. 
+Next thing on the agenda is setting up a straight-forward unity project to smooth out overlay production.
 
 # Installation
 1. Ensure that you have the sdkv2_compositor version of LIV installed.
