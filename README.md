@@ -28,6 +28,9 @@ The overlay and twitch integration is off by default. Make the appropriate chang
 
 # Usage
 Twitch command currently require broadcaster, moderator, or VIP status to use. Those commands are: 
+
 !cam fp
+
 !cam follow
+
 !cam menu
