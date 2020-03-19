@@ -16,8 +16,8 @@ Next thing on the agenda is setting up a straight-forward unity project to smoot
 
 5. Run LIV, select Plugins -> 'Mori's Beat Saber Cam'.
 
-6. Review the config file (if you want the overlay and/or twitch commands).
-
+6. Review the config file (if you want the overlay and/or twitch commands). The current "default" camera is the "RigCam" ones. 
+ 
 6. Profit. 
 
 # Configuration
