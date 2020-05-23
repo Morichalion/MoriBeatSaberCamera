@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright 2019 LIV inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
@@ -18,6 +18,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 using UnityEngine;
@@ -31,20 +32,23 @@ public class MoriBScamPluginSettings : IPluginSettings {
     public float fov = 60f;
     public float distance = 2f;
     public float speed = 1f;
+    public float bahbah = 1.0f;
 }
 
 // The class must implement IPluginCameraBehaviour to be recognized by LIV as a plugin.
 public class MoriBScam : IPluginCameraBehaviour {
-    
+
     // Store your settings localy so you can access them.
     MoriBScamPluginSettings _settings = new MoriBScamPluginSettings();
 
     // Provide your own settings to store user defined settings .   
     public IPluginSettings settings => _settings;
 
+
     // Invoke ApplySettings event when you need to save your settings.
     // Do not invoke event every frame if possible.
     public event EventHandler ApplySettings;
+
 
     // ID is used for the camera behaviour identification when the behaviour is selected by the user.
     // It has to be unique so there are no plugin collisions.
@@ -54,7 +58,7 @@ public class MoriBScam : IPluginCameraBehaviour {
     // Author name.
     public string author => "Morichalion";
     // Plugin version.
-    public string version => "0.0.4";
+    public string version => "0.0.12";
     // Localy store the camera helper provided by LIV.
     PluginCameraHelper _helper;
     //float _elaspedTime;
@@ -99,8 +103,8 @@ public class MoriBScam : IPluginCameraBehaviour {
     public Vector3 MenuCamLook = new Vector3(0f, 1.2f, 0f);
 
     //Dynamic Cam Targets(to be defined in relation to headTarget
-    public Vector3 DynCamPosition = new Vector3(1.0f,2.3f,-3f);
-    public Vector3 DynCamLook = new Vector3(.4f,0.3f,3.0f);
+    public Vector3 DynCamPosition = new Vector3(1.0f, 2.3f, -3f);
+    public Vector3 DynCamLook = new Vector3(.4f, 0.3f, 3.0f);
 
     /*
      * Score overlay stuff.
@@ -127,19 +131,20 @@ public class MoriBScam : IPluginCameraBehaviour {
     // Constructor is called when plugin loads
     public MoriBScam() { }
 
-    
+
     public Vector3 StringToVector3(string str)
     {
-        //This is going to change the string value from the file into a Vector3
         
-        string[] a = str.Split('(',')');
+        //This is going to change the string value from the file into a Vector3
+
+        string[] a = str.Split('(', ')');
         string[] b = a[1].Split(',');
         string[] args = { b[0], b[1], b[2] };
         float[] vals = { 0.0f, 0.0f, 0.0f };
         Vector3 vec;
 
         try
-        {   
+        {
             vals[0] = float.Parse(args[0]);
             vals[1] = float.Parse(args[1]);
             vals[2] = float.Parse(args[2]);
@@ -160,8 +165,13 @@ public class MoriBScam : IPluginCameraBehaviour {
         */
     }
     public string ResourceLoc;
+    public float overlayScale = 1.0f;
+    public float overlayOffsetX = 0.0f;
+    public float overlayOffsetY = 0.0f;
     public void CheckSettings()
     {
+
+
         string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         string settingLoc = Path.Combine(docPath, @"LIV\Plugins\CameraBehaviours\MoriBScam\");
         //create the directory in the off-chance that it doesn't exist.
@@ -179,9 +189,35 @@ public class MoriBScam : IPluginCameraBehaviour {
                 {
                     //apply settings
                     string line;
+                    List<Vector3> riglookpoints = new List<Vector3>();//temp list to convert to an array for the RigLook array. 
 
                     while ((line = sr.ReadLine()) != null)
                     {
+                        if(line.Contains("RigLook ="))
+                        {
+                            string[] blah = line.Split('=');
+                            riglookpoints.Add(StringToVector3(blah[1]));
+                        }
+                        if (line.Contains("RigCamResponseTime ="))
+                        {
+                            string[] blah = line.Split('=');
+                            RigCamObjectResponsiveness = float.Parse(blah[1]);
+                        }
+                        if (line.Contains("RigCamChangeMin ="))
+                        {
+                            string[] blah = line.Split('=');
+                            RigCamChangeMin = float.Parse( blah[1]);
+                        }
+                        if (line.Contains("RigCamChangeMax ="))
+                        {
+                            string[] blah = line.Split('=');
+                            RigCamChangeMax = float.Parse(blah[1]);
+                        }
+                        if (line.Contains("RigCamChangeMax ="))
+                        {
+                            string[] blah = line.Split('=');
+                            RigCamChangeMax = int.Parse(blah[1]);
+                        }
                         if (line.Contains("MenuCamPosition"))
                         {
                             string[] blah = line.Split('=');
@@ -202,7 +238,7 @@ public class MoriBScam : IPluginCameraBehaviour {
                             string[] blah = line.Split('=');
                             DynCamLook = StringToVector3(blah[1]);
                         }
-                        if(line.Contains("Twitch Oath ="))
+                        if (line.Contains("Twitch Oath ="))
                         {
                             string[] blah = line.Split('=');
                             twOath = blah[1].Trim();
@@ -212,18 +248,67 @@ public class MoriBScam : IPluginCameraBehaviour {
                             string[] blah = line.Split('=');
                             twName = blah[1].Trim();
                         }
+                        if(line.Contains("Debug ="))
+                        {
+                            string[] blah = line.Split('=');
+                            debugLogging = blah[1].Trim();
+                        }
+                        if(line.Contains("FieldOfView ="))
+                        {
+                            //debug("Field of view default is " + _settings.fov.ToString());
+                            string[] blah = line.Split('=');
+                            _settings.fov = float.Parse(blah[1].Trim());
+                            //debug("Field of view has been updated to " + _settings.fov.ToString());
+                        }
                         if (line.Contains("Overlay ="))
                         {
                             if (!line.Contains("no"))
                             {
                                 overlayactive = true;
-                                debug("Overlay should be active now. ");
+                                
+                            }
+                        }
+                        if (line.Contains("OverlayScale ="))
+                        {
+                            string[] blah = line.Split('=');
+                            try
+                            {
+                                overlayScale = float.Parse(blah[1]);
+                            }
+                            catch
+                            {
+                                debug("Scale didn't parse");
+                            }
+                        }
+                        if (line.Contains("OverlayOffsetX ="))
+                        {
+                            string[] blah = line.Split('=');
+                            try
+                            {
+                                overlayOffsetX = float.Parse(blah[1]);
+                            }
+                            catch
+                            {
+                                debug("Scale didn't parse");
+                            }
+                        }
+                        if (line.Contains("OverlayOffsetY ="))
+                        {
+                            string[] blah = line.Split('=');
+                            try
+                            {
+                                overlayOffsetY = float.Parse(blah[1]);
+                            }
+                            catch
+                            {
+                                debug("Scale didn't parse");
                             }
                         }
                     }
+                    RigCamObjectLookPositions = riglookpoints.ToArray();
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 debug(e.Message);
             }
@@ -234,6 +319,11 @@ public class MoriBScam : IPluginCameraBehaviour {
             using (var ws = new StreamWriter(@settingLoc))
             {
                 ws.WriteLine("*Morichalion's Lazy Streamer Beat Saber Camera for LIV Avatars settings.");
+                ws.WriteLine("*");
+                ws.WriteLine("*Field of view. Default is 60.");
+                ws.WriteLine("FieldOfView = 60");
+                ws.WriteLine("*");
+                ws.WriteLine("*");
                 ws.WriteLine("*Units are in Meters.");
                 ws.WriteLine("*");
                 ws.WriteLine("*Left-Right,Up-Down,Forward-Back");
@@ -248,6 +338,26 @@ public class MoriBScam : IPluginCameraBehaviour {
                 ws.WriteLine("DynCamLook = " + DynCamLook.ToString());
                 ws.WriteLine("*");
                 ws.WriteLine("*");
+                ws.WriteLine("**RigCam: Keeps camera at different positions in relation to an object's position and rotation.");
+                ws.WriteLine("*This setting is for the root of the camera rig. The position is in relation to a player's head on the floor. Default is one meter forward.");
+                ws.WriteLine("RigCamObjectPosition = " + RigCamObjectPosition.ToString());
+                ws.WriteLine("*These are the camera position and the camera target point in relation to the RigCamObjectPosition");
+                ws.WriteLine("RigCamPosition = " + RigCamCameraPosition.ToString());
+                ws.WriteLine("RigCamCamerFocusPosition = " + RigCamFocusPosition.ToString());
+                ws.WriteLine("*The rotation of RigCamObjectPosition is created by looking at one of these points. Just add more lines in the same format if you want more points. ");
+                //dump all values from an array.
+                foreach(Vector3 vec in RigCamObjectLookPositions)
+                {
+                    ws.WriteLine("RigLook = " + vec.ToString());
+                }
+                ws.WriteLine("*Frequency of change in seconds, wait time is random between min and max.");
+                ws.WriteLine("RigCamChangeMin = " + RigCamChangeMin.ToString());
+                ws.WriteLine("RigCamChangeMax = " + RigCamChangeMax.ToString());
+                ws.WriteLine("*Speed of camera change time. Make this someting less than RigCamChangeMin*");
+                ws.WriteLine("RigCamResponseTime = " + RigCamObjectResponsiveness.ToString());
+
+                ws.WriteLine("*");
+                ws.WriteLine("*");
                 ws.WriteLine("**Twitch Login Info, for viewer-controlled cameras**");
                 ws.WriteLine("Twitch Oath = " + twOath);
                 ws.WriteLine("Twitch Name = " + twName);
@@ -255,6 +365,13 @@ public class MoriBScam : IPluginCameraBehaviour {
                 ws.WriteLine("*");
                 ws.WriteLine("*Overlay. Want it on? yap or no *");
                 ws.WriteLine("Overlay = no");
+                ws.WriteLine("*");
+                ws.WriteLine("*Scale and position stuff for the overlay");
+                ws.WriteLine("OverlayScale = 1.0");
+                ws.WriteLine("OverlayOffsetX = 0.0");
+                ws.WriteLine("OverlayOffsetY = 0.0");
+                ws.WriteLine("Debugging on for this plugin? true or false");
+                ws.WriteLine("Debug = False");
 
 
                 //Parse.TryParseFloat("0.0");
@@ -273,8 +390,8 @@ public class MoriBScam : IPluginCameraBehaviour {
 
     // OnActivate function is called when your camera behaviour was selected by the user.
     // The pluginCameraHelper is provided to you to help you with Player/Camera related operations.
-   
 
+    public bool Activated = false;
     public void OnActivate(PluginCameraHelper helper) {
         //local camera helper reference
         _helper = helper;
@@ -285,65 +402,83 @@ public class MoriBScam : IPluginCameraBehaviour {
 
 
         /* overlay stuff defined here. */
-        if(overlayactive == true)
-        {
-            //Trying to instantiate an arbitrary prefab. 
-            string assetPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string p = Path.Combine(assetPath, @"LIV\Plugins\CameraBehaviours\MoriBScam\overlay.yap");
-            //debug("gettting items from here: " + p);
-            var myasset = AssetBundle.LoadFromFile(p);
-            var prefab = myasset.LoadAsset<GameObject>("Overlay");
-            overlay = UnityEngine.Object.Instantiate(prefab);
-            //set layers for each object, assign each to variables in turn.
-            foreach (Transform t in overlay.GetComponentInChildren<Transform>(true))
+        
+            if (overlayactive == true)
             {
-               t.gameObject.layer = overlayLayerCur;
-                string name = t.gameObject.name;
-                //debug("Changed layer on " + t.gameObject.name);
-                //define overlay elements that need to be referened later on. 
-                if(name == "Icon")
+            debug("trying to set up overlay");
+            try
+            {
+                //Trying to instantiate an arbitrary prefab. 
+                string assetPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                string p = Path.Combine(assetPath, @"LIV\Plugins\CameraBehaviours\MoriBScam\overlay.yap");
+                //debug("gettting items from here: " + p);
+                AssetBundle myasset = AssetBundle.LoadFromFile(p);
+            
+                var prefab = myasset.LoadAsset<GameObject>("Overlay");
+                myasset.Unload(false);
+            
+                overlay = UnityEngine.Object.Instantiate(prefab);
+                //set layers for each object, assign each to variables in turn.
+                foreach (Transform t in overlay.GetComponentInChildren<Transform>(true))
                 {
-                    overIcon = t.gameObject;
+                    t.gameObject.layer = overlayLayerCur;
+                    string name = t.gameObject.name;
+                    //debug("Changed layer on " + t.gameObject.name);
+                    //define overlay elements that need to be referened later on. 
+                    if (name == "Icon")
+                    {
+                        overIcon = t.gameObject;
+                    }
+                    if (name == "Score")
+                    {
+                        overScore = t.gameObject.GetComponent<TextMesh>();
+                    }
+                    if (name == "Rank")
+                    {
+                        overRank = t.gameObject.GetComponent<TextMesh>();
+                    }
+                    if (name == "Percent")
+                    {
+                        overPercent = t.gameObject.GetComponent<TextMesh>();
+                    }
+                    if (name == "Title")
+                    {
+                        overTitle = t.gameObject.GetComponent<TextMesh>();
+                    }
                 }
-                if(name == "Score")
+                debug("Got to end of overlay gen. Camera selection next");
+            } catch (Exception e) { debug("found it: " + e.Message); }
+
+
+                //Find reference WorldCamera so UI stuff can be attached to it. 
+                foreach (Camera c in Camera.allCameras)
                 {
-                    overScore = t.gameObject.GetComponent<TextMesh>();
-                }
-                if (name == "Rank")
-                {
-                    overRank = t.gameObject.GetComponent<TextMesh>();
-                }
-                if (name == "Percent")
-                {
-                    overPercent = t.gameObject.GetComponent<TextMesh>();
-                }
-                if (name == "Title")
-                {
-                    overTitle = t.gameObject.GetComponent<TextMesh>();
+               
+                debug(c.name);
+                    if (c.name == "NativeOverlayCamera")
+                    {
+                    Transform blah = _helper.manager.camera.uiCamera.transform;
+                        //Found WorldCamera. Set overlay as child and resize/rotate it.
+
+                        overlay.transform.parent = blah.transform;
+                        overlay.transform.transform.rotation = blah.transform.rotation;
+                    debug("trying to set overlay offset X:" + overlayOffsetX + " Y:" + overlayOffsetY);
+                    try
+                    {
+                        overlay.transform.transform.localPosition = new Vector3((overlayOffsetX + 0f), overlayOffsetY + .05f, 1.0f);
+                    }
+                    catch { debug("This thing broke at applying the offsets"); }
+                        overlay.transform.localScale = new Vector3(overlayScale* 0.1f, overlayScale * 0.1f, overlayScale * 0.1f);
+                        overlay.transform.transform.Rotate(-90.0f, 0f, 0f);
+                        overlay.SetActive(false);
+                       
+                    }
                 }
             }
-
-
-
-            //Find reference WorldCamera so UI stuff can be attached to it. 
-            foreach (Camera c in Camera.allCameras)
-            {
-                if (c.name == "WorldCamera")
-                {
-                //Found WorldCamera. Set over as child and resize/rotate it.
-                
-                    overlay.transform.parent = c.transform;
-                    overlay.transform.transform.rotation = c.transform.rotation;
-                    overlay.transform.transform.localPosition = new Vector3 (0f, .05f, 1.0f);
-                    overlay.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-                    overlay.transform.transform.Rotate(-90.0f, 0f, 0f);
-                }
-            }
-        }
-
         
 
 
+            
 
 
 
@@ -353,56 +488,60 @@ public class MoriBScam : IPluginCameraBehaviour {
         headTarget.transform.rotation = _helper.playerHead.rotation;
         headTarget.transform.position = _helper.playerHead.position;
 
-
         //BS websocket
-        ws = new WebSocket("ws://localhost:6557/socket");
-        ws.OnOpen += (sender, e) => {
-            debug("BS connection open");
-            wsStatus = "open";
-        };
+        //debug("Just starting the websocket");
+            ws = new WebSocket("ws://localhost:6557/socket");
+        wsStatus = "closed";
+        ws.OnOpen += (sender, e) =>
+            {
+                //debug("BS connection open");
+                wsStatus = "open";
+            };
         ws.OnMessage += (sender, e) =>
-        {
+            {
 
             //Triggered when menu gets selected. Resets all overlay values to default. 
             if (e.Data.Contains("scene\":\"Menu"))
-            {
-                phase = 0;
-                gctype = "menu";
-                overlayLayerCur = 4;
-                score = "0  ";
-                scorePercent = "100%";
-                debug("Should be entering Menu Phase.");
+                {
+                    phase = 0;
+                    gctype = "menu";
+                    overlayLayerCur = 9;
+                    score = "0  ";
+                    scorePercent = "100%";
+                    overlay.SetActive(false);
+                //debug("Should be entering Menu Phase.");
 
 
             }
 
             //song phase (select which ones)
             if (e.Data.Contains("scene\":\"Song"))
-            {
-                phase = 1;
-                overlayLayerCur = 10;
-                score = "0  ";
-                scorePercent = "100%";
-                debug("Should be entering Song Phase.");
+                {
+                    overlay.SetActive(true);
+                    phase = 1;
+                    overlayLayerCur = 10;
+                    score = "0  ";
+                    scorePercent = "100%";
+                //debug("Should be entering Song Phase.");
 
                 //set up the cover texture
                 JObject menuInfo = JObject.Parse(e.Data);
-                SongTitle = menuInfo["status"]["beatmap"]["songName"].ToString();
-                coverTexData = menuInfo["status"]["beatmap"]["songCover"].ToString();
+                    SongTitle = menuInfo["status"]["beatmap"]["songName"].ToString();
+                    coverTexData = menuInfo["status"]["beatmap"]["songCover"].ToString();
                 //'standard' map types
                 if (e.Data.Contains("mode\":\"SoloStandard") || e.Data.Contains("mode\":\"PartyStandard") || e.Data.Contains("mode\":\"SoloNoArrows") || e.Data.Contains("mode\":\"PartyNoArrows"))
-                {
-                    gctype = "menu";
-                }
+                    {
+                        gctype = "default";
+                    }
                 //'360 and 90 degree maps
                 if (e.Data.Contains("mode\":\"Party360Degree") || e.Data.Contains("mode\":\"Party90Degree") || e.Data.Contains("mode\":\"Solo360Degree") || e.Data.Contains("mode\":\"Solo90Degree"))
-                {
-                    gctype = "follow";
-                }
+                    {
+                        gctype = "follow";
+                    }
 
-            }//ScoreChanged event. 
+                }//ScoreChanged event. 
             if (e.Data.Contains("scoreChanged"))
-            {
+                {
                 //gets score information for the overlay
                 JObject hit = JObject.Parse(e.Data);
                 //Regular score. 
@@ -410,39 +549,50 @@ public class MoriBScam : IPluginCameraBehaviour {
 
                 //Percent
                 int curScore = (int)hit["status"]["performance"]["score"];
-                int maxScore = (int)hit["status"]["performance"]["currentMaxScore"];
-                float curPercent = (float)curScore / maxScore;
-                curPercent *= 100.0f;
-                scorePercent = curPercent.ToString().Substring(0, 4) + "%";
+                    int maxScore = (int)hit["status"]["performance"]["currentMaxScore"];
+                    float curPercent = (float)curScore / maxScore;
+                    curPercent *= 100.0f;
+                    scorePercent = curPercent.ToString().Substring(0, 4) + "%";
                 //rank
                 rank = hit["status"]["performance"]["rank"].ToString();
 
-            }
+                }
             if (e.Data.Contains("t\":\"noteCut"))
-            {
-                JObject slice = JObject.Parse(e.Data);
-                int combo = (int)slice["status"]["performance"]["combo"];              
-            }
+                {
+                    JObject slice = JObject.Parse(e.Data);
+                    int combo = (int)slice["status"]["performance"]["combo"];
+                }
             if (e.Data.Contains("t\":\"noteMissed"))
-            {
-                JObject slice = JObject.Parse(e.Data);
-                int combo = (int)slice["status"]["performance"]["combo"];
-            }
-        };
-        ws.OnClose += (sender, e) =>
-        {
-            debug("Beat Saber websocket closed because: " + e.Reason);
-            debug("Retry timer is at " + wsRetry.ToString());
-            debug("ws Status was " + wsStatus);
-            wsStatus = "closed";
-            wsRetry = 0.0f;
-        };
-        ws.OnError += (sender, e) =>
-        {
-            debug("Beatsaber websocket error: " + e.Message);
-        };
-        
+                {
+                    JObject hit = JObject.Parse(e.Data);
+                    int curScore = (int)hit["status"]["performance"]["score"];
+                    int maxScore = (int)hit["status"]["performance"]["currentMaxScore"];
+                    float curPercent = (float)curScore / maxScore;
+                    curPercent *= 100.0f;
+                    scorePercent = curPercent.ToString().Substring(0, 4) + "%";
 
+                }
+            };
+        ws.OnClose += (sender, e) =>
+            {
+            // debug("Beat Saber websocket closed because: " + e.Reason);
+            // debug("Retry timer is at " + wsRetry.ToString());
+            //debug("ws Status was " + wsStatus);
+            if (wsStatus != "closing")
+                {
+                    wsStatus = "closed";
+
+                    wsRetry = 0.0f;
+                }
+            };
+        ws.OnError += (sender, e) =>
+            {
+                debug("Beatsaber websocket error: " + e.Message);
+                debug("Exception is: " + e.Exception);
+                    wsRetry = 0.0f;
+                
+            };
+        debug("BS websocket good now");
 
         //BS websocket End
 
@@ -471,54 +621,59 @@ public class MoriBScam : IPluginCameraBehaviour {
             tw.OnMessage += (sender, e) =>
             {
 
-            if(e.Data.StartsWith("PING"))
-            {
-                tw.Send("PONG :tmi.twitch.tv");
-            }
-            else
-            {
-                //Split into array.
-                char[] delim = { ' ' };
-                string[] str = e.Data.Split(delim,5);
-                foreach(string i in str)
+                if (e.Data.StartsWith("PING"))
                 {
-                    //debug(i);
+                    tw.Send("PONG :tmi.twitch.tv");
                 }
-                if(str[2] == "PRIVMSG")
+                else
                 {
-                    //All the User-Command-type stuff goes here. 
-                    if (str[0].Contains("broadcaster/") || str[0].Contains("moderator/") || str[0].Contains("vip/"))
+                    //Split into array.
+                    char[] delim = { ' ' };
+                    string[] str = e.Data.Split(delim, 5);
+                    foreach (string i in str)
                     {
-                        //Moderator-level protected twitch command stuff.
-                        //debug("Broadcaster or Moderator is detected");
-                        if (str[4].StartsWith(":!cam"))
+                        //debug(i);
+                    }
+                    if (str[2] == "PRIVMSG")
+                    {
+                        //All the User-Command-type stuff goes here. 
+                        if (str[0].Contains("broadcaster/") || str[0].Contains("moderator/") || str[0].Contains("vip/"))
                         {
-                            //cam command. 
-                            //twitchMessage("Cam Command detected!");
-                            //debug("Should have posted a note to the chat");
-                            if (str[4].Contains("fp"))
+                            //Moderator-level protected twitch command stuff.
+                            //debug("Broadcaster or Moderator is detected");
+                            if (str[4].StartsWith(":!cam"))
                             {
-                                gctype = "fp";
-                                twitchMessage("GameCam to FP Mode");
-                                debug("GameCam to FP Mode");
-                            }
-                            else if (str[4].Contains("follow"))
-                            {
-                                gctype = "follow";
-                                twitchMessage("GameCam to Follow Mode");
-                                debug("GameCam to Follow Mode");
-                            }
-                            else if (str[4].Contains("menu"))
-                            {
-                                gctype = "menu";
-                                twitchMessage("GameCam to Menu Mode");
-                                debug("GameCam to Menu Mode");
+                                //cam command. 
+                                //twitchMessage("Cam Command detected!");
+                                //debug("Should have posted a note to the chat");
+                                if (str[4].Contains("fp"))
+                                {
+                                    gctype = "fp";
+                                    twitchMessage("GameCam to FP Mode");
+                                    debug("GameCam to FP Mode");
+                                }
+                                else if (str[4].Contains("follow"))
+                                {
+                                    gctype = "follow";
+                                    twitchMessage("GameCam to Follow Mode");
+                                    debug("GameCam to Follow Mode");
+                                }
+                                else if (str[4].Contains("menu"))
+                                {
+                                    gctype = "menu";
+                                    twitchMessage("GameCam to Menu Mode");
+                                    debug("GameCam to Menu Mode");
+                                }else if (str[4].Contains("default"))
+                                {
+                                    gctype = "default";
+                                    twitchMessage("GameCam to Default");
+                                    debug("GameCam to Default Mode");
+                                }
                             }
                         }
                     }
                 }
-            }
-        };
+            };
             tw.OnError += (sender, e) =>
         {
             tw.CloseAsync();
@@ -529,6 +684,73 @@ public class MoriBScam : IPluginCameraBehaviour {
         };
         }
 
+        //RigCam() items
+        
+            RigCamStart();
+        
+        debug("Activated right");
+        Activated = true;
+    }
+
+    public float handsraised = 0.0f;
+    private float buttondown = 0.0f;
+    public void ManualSwitcher()
+    {
+        try
+        {
+            if (_helper.manager.player.leftHand.GetAnyButtonDown())
+            {
+                buttondown -= Time.deltaTime;
+                if (buttondown < 0.0f)
+                {
+                    debug("Okay, button is DOOOOW");
+                    buttondown = 2.0f;
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            debug("Button broked");
+        }
+        Vector3 left = _helper.playerLeftHand.transform.position;
+        Vector3 right = _helper.playerRightHand.transform.position;
+        Vector3 head = _helper.playerHead.transform.position;
+        float dist = Vector3.Distance(left, right);
+        if (dist < 0.25f) {
+            if (left.y > head.y)
+            {
+                handsraised += Time.deltaTime;
+                if(handsraised > 2.5f)
+                {
+                    debug("Camera change should have triggered");
+                    handsraised = 0.0f;
+                    phase = 1;
+                    if(gctype == "menu")
+                    {
+                        gctype = "follow";
+                    }
+                    if(gctype == "follow")
+                    {
+                        gctype = "default";
+                    }
+                    if(gctype == "default")
+                    {
+                        gctype = "menu";
+                    }
+                    NotifyUser();
+                    
+                }
+                else
+                {
+                    handsraised = 0.0f;
+                }
+            }
+        }
+    }
+
+    public void NotifyUser()
+    {
+        //adds a notification to the user.
     }
 
 
@@ -536,7 +758,7 @@ public class MoriBScam : IPluginCameraBehaviour {
     // OnSettingsDeserialized is called only when the user has changed camera profile or when the.
     // last camera profile has been loaded. This overwrites your settings with last data if they exist.
     public void OnSettingsDeserialized() {
-        
+
     }
 
     // OnFixedUpdate could be called several times per frame. 
@@ -549,12 +771,12 @@ public class MoriBScam : IPluginCameraBehaviour {
     // When you are reading other transform positions during OnUpdate it could be possible that the position comes from a previus frame
     // and has not been updated yet. If that is a concern, it is recommended to use OnLateUpdate instead.
     public void OnUpdate() {
-        
-        Transform headTransform = _helper.playerHead;
+        if(Activated == false) { goto OnUpdateEnd; }
 
+        Transform headTransform = _helper.playerHead;
         //overlay stuff. Should only be messed with if it's active. 
-        if(overlayactive == true)
-        { 
+        if (overlayactive == true)
+        {
             overPercent.text = scorePercent;
             overScore.text = "Score: " + score;
             overRank.text = rank;
@@ -563,19 +785,20 @@ public class MoriBScam : IPluginCameraBehaviour {
             * set the overlay layer. OverlayLayerCur is defined in a websocket event.
             * updating the overlay needs to be done during OnUpdate();
             */
-            if(overlayLayerCur != overlayLayer)
-        {
-            foreach (Transform t in overlay.GetComponentInChildren<Transform>(true))
+            if (overlayLayerCur != overlayLayer)
             {
-                t.gameObject.layer = overlayLayerCur;
+                foreach (Transform t in overlay.GetComponentInChildren<Transform>(true))
+                {
+                    t.gameObject.layer = overlayLayerCur;
+                    
+                }
+                overlayLayer = overlayLayerCur;
             }
-            overlayLayer = overlayLayerCur;
-        }
             /*
              * Updating the icon. 
              * coverTexData gets updated in the websocket. 
              */
-            if(coverTexData != "empty")
+            if (coverTexData != "empty")
             {
                 //update the icon.
                 byte[] bits = Convert.FromBase64String(coverTexData);
@@ -588,10 +811,10 @@ public class MoriBScam : IPluginCameraBehaviour {
         }
         //is the BS websocket connected?
 
-        if(wsStatus == "closed")
+        if (wsStatus == "closed")
         {
             wsRetry += Time.deltaTime;
-            if(wsRetry > 1.0f)
+            if (wsRetry > 1.0f)
             {
                 debug("Attempting to connect to BS");
                 wsStatus = "open";
@@ -615,8 +838,8 @@ public class MoriBScam : IPluginCameraBehaviour {
                 }
             }
         }
-        
-        
+
+
 
         //check for angle tolerance (only affects rotation camera
         if (Quaternion.Angle(headTransform.rotation, headTarget.transform.rotation) > 15.0f)
@@ -624,28 +847,35 @@ public class MoriBScam : IPluginCameraBehaviour {
             headTarget.transform.rotation = headTransform.rotation;
         }
         //update camLook and camPosition (different methods depending on phases. 
-        
-        
-        if (phase == 0)
-        {
+
+        //get lookvector from the user head to the camera
+            if (phase == 0)
+            {
             //Menu camera
             MenuCam();
-        }
-        if (phase == 1)
-        {
-            //Game Camera
-            if (gctype == "fp")
-            {
-                FPCam();
-            }else if (gctype == "menu")
-            {
-                MenuCam();
             }
-            else if(gctype == "follow")
+            else if (phase == 1)
             {
-                FollowCam();
+                //Game Camera
+                if (gctype == "fp")
+                {
+                    FPCam();
+                } else if (gctype == "menu")
+                {
+                    MenuCam();
+                }
+                else if (gctype == "default")
+                {
+                    RigCam();
+                }
+                else if (gctype == "follow")
+                {
+                    FollowCam();
+                }
             }
-        }        
+        ManualSwitcher();
+    OnUpdateEnd:
+        ;
     }
 
     // OnLateUpdate is called after OnUpdate also everyframe and has a higher chance that transform updates are more recent.
@@ -655,56 +885,283 @@ public class MoriBScam : IPluginCameraBehaviour {
     // OnDeactivate is called when the user changes the profile to other camera behaviour or when the application is about to close.
     // The camera behaviour should clean everything it created when the behaviour is deactivated.
     public void OnDeactivate() {
+        if (Activated == false) {
+            debug("Did not fire OnActivate(). Skipping shut down routines.");
+            goto OnDeactivateEnd; 
+        }
         // Saving settings here
-        
-        ws.CloseAsync();
+        debug("Shuttin' down...");
+        wsStatus = "closing";
+        try
+        {
+            ws.Close();
+        }
+        catch (Exception e)
+        {
+            debug("Okay, trying to close this is causing oddities.");
+            debug("The oddities are: " + e.Message);
+        }
         if (twOath != "none")
         {
-            tw.CloseAsync();
+            tw.Close();
         }
         if (overlayactive == true)
         {
             UnityEngine.Object.Destroy(overlay);
+            debug("Destroying the overlay");
+            //overlayactive = false;
         }
-
         ApplySettings?.Invoke(this, EventArgs.Empty);
-    }
+        UnityEngine.Object.Destroy(RigCamObject);
+        UnityEngine.Object.Destroy(FloorReference);
+        //These items will be children of RigCamObject
+        UnityEngine.Object.Destroy(RigCamCamera);
+        UnityEngine.Object.Destroy(RigCamFocus);
+        UnityEngine.Object.Destroy(headTarget);
+        debug("Successfully deactivated MoriBScam");
+
+    OnDeactivateEnd:
+        ;
+        Activated = false;
+}
 
     // OnDestroy is called when the users selects a camera behaviour which is not a plugin or when the application is about to close.
     // This is the last chance to clean after your self.
     public void OnDestroy() {
+        debug("OnDestroy() was fired.");
 
     }
+    public string debugLogging = "true";
     public void debug(string str)
     {
-        /*
-        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        string settingLoc = Path.Combine(docPath, @"LIV\Plugins\CameraBehaviours\MoriBScam\");
-        string target = Path.Combine(settingLoc, "debug.txt");
-        
-        using (var sw = new StreamWriter(target, true))
+        if (debugLogging == "true")
         {
-            sw.WriteLine(str);
+            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string settingLoc = Path.Combine(docPath, @"LIV\Plugins\CameraBehaviours\MoriBScam\");
+            string target = Path.Combine(settingLoc, "debug.txt");
+
+            using (var sw = new StreamWriter(target, true))
+            {
+                sw.WriteLine(str);
+            }
         }
-        */
+        
+        
     }
+
+    /// <summary>
+    /// Different camera methods. The once all the per-frame stuff is updated above, one of these gets run. 
+    /// 
+    /// </summary>
     public void MenuCam()
     {
         //camera for the menu. Just a static camera.
         camPositionTarget = MenuCamPosition;
         camLookTarget = MenuCamLook;
 
-        camPosition = Vector3.Lerp(camPosition, camPositionTarget, 3.0f *Time.deltaTime);
-        camLook = Vector3.Lerp(camLook, camLookTarget, 3.0f*Time.deltaTime);
-        
+        camPosition = Vector3.Lerp(camPosition, camPositionTarget, 2.0f * Time.deltaTime);
+        camLook = Vector3.Lerp(camLook, camLookTarget, 2.0f * Time.deltaTime);
+
         Vector3 lookvector = camLook - camPosition;
         camRotation = Quaternion.LookRotation(lookvector);
 
         _helper.UpdateCameraPose(camPosition, camRotation);
         _helper.UpdateFov(_settings.fov);
+        
+
+    }
+
+
+    //DefaultGameCam variables. Positions/viewtargets. All that fun stuff. 
+    private Vector3[] DefaultGameCamPositions =
+    {
+        //far-off cameras
+        new Vector3(1.5f, 2.0f, -3.0f),
+        new Vector3(-1.5f, 2.0f, -3.0f),
+        //over-the-shoulder cameras
+        new Vector3(0.4f,2f,-.6f),
+        new Vector3(-0.4f,2f,-.6f),
+        //facing-the-player
+        new Vector3 (0.0f,3.0f,3.0f),
+        new Vector3 (2.0f,2.0f,3.0f),
+        new Vector3 (-2.0f,2.0f, 3.0f)
+
+    };
+    private Vector3[] DefaultGameCamTargets =
+    {
+        //far-off cameras
+        new Vector3(0.0f,1.0f,3.0f),
+        new Vector3(0.0f,1.0f,3.0f),
+        //over-the-shoulder targets
+        new Vector3(-.25f,.7f,4.0f),
+        new Vector3(.25f,.7f,4.0f),
+        //facing-the-player
+        new Vector3(0.0f,1.0f,0.0f),
+        new Vector3(0.0f,1.0f,0.0f),
+        new Vector3(0.0f,1.0f,0.0f)
+    };
+    private int DefaultGameCamPose = 0;    
+    private float DefaultGameCamTimer = 0.0f;
+    private float DefaultGameCamSpeed = 4.0f;
+    public void DefaultGameCam()
+    {
+        
+        //default game camera. This just pans the camera view from pose-to-pose. 
+        DefaultGameCamTimer -= Time.deltaTime;
+        if (DefaultGameCamTimer<0.0f)
+        {
+            
+            //Set timer to random value 
+            DefaultGameCamTimer += UnityEngine.Random.Range(10.0f, 15.0f);
+            //Select another cameraposition.
+            DefaultGameCamPose = UnityEngine.Random.Range(0,DefaultGameCamPositions.Length);
+        }
+
+
+        camPositionTarget = DefaultGameCamPositions[DefaultGameCamPose];
+        camLookTarget = DefaultGameCamTargets[DefaultGameCamPose];
+
+        camPosition = Vector3.SmoothDamp(camPosition, camPositionTarget, ref camPositionVelocity, DefaultGameCamSpeed);
+        camLook = Vector3.SmoothDamp(camLook, camLookTarget, ref camLookVelocity, DefaultGameCamSpeed);
+
+        Vector3 lookvector = camLook - camPosition;
+        camRotation = Quaternion.LookRotation(lookvector);
+
+
+        _helper.UpdateCameraPose(camPosition, camRotation);
+        _helper.UpdateFov(_settings.fov);
+
+    }
+    /*
+     * RigCam() will set the parent the camera to an empty. 
+     * The empty position/rotation will be will be influenced by a point in relation to the playerhead. A unit or so ahead maybe.
+     */
+
+    public GameObject RigCamObject;
+    public GameObject FloorReference;
+    //These items will be children of RigCamObject
+    public GameObject RigCamCamera;
+    public GameObject RigCamFocus;
+   
+
+    public Vector3 RigCamObjectPosition = new Vector3(0.0f, 0.0f, 1.0f);// Position RigCamObject moves towards (For now, relative to head position on floor);
+    public Vector3 RigCamObjectVelocity = new Vector3();
+    public float RigCamObjectResponsiveness = 5f; //Speed value for smoothDamp. Should 
+
+    public Vector3 RigCamObjectLook = new Vector3(0.0f, 0.0f, 0.0f); //current LookRotation for RigCamObject. 
+    public Vector3[] RigCamObjectLookPositions =
+    {
+        new Vector3(2.0f,0.0f, 4.0f),
+        new Vector3(-2.0f,0.0f,4.0f),
+        new Vector3(2.0f,0.0f,-4.0f),
+        new Vector3(-2.0f,0.0f,-4.0f)
+    };
+    public Vector3 RigCamObjectLookTarget = new Vector3(0.0f, 0.0f, 4.0f);//Look target for the rig Y must always be zero. 
+    public Vector3 RigCamObjectLootTargetVelocity = new Vector3();//velocty for the smoothdamp on this. 
+    
+
+    public Vector3 RigCamCameraPosition = new Vector3(0.0f,3.0f,-4.0f);//Current position (only Y and Z change)
+    public Vector3[] RigCamCameraPositions =
+    {
+        new Vector3 (0.0f,2f,-4f),
+        new Vector3 (0.0f,2f,-4f),
+        new Vector3 (0.0f,2f,-4f),
+        new Vector3 (0.0f,2f,-4f)
+
+    };//Select from these positions
+    public Vector3 RigCamCameraVelocity = new Vector3();//velocity. 
+    
+    public Vector3 RigCamFocusPosition = new Vector3(0.0f,0.0f,0.0f);
+    public Vector3[] RigCamFocusPositions =
+    {
+         new Vector3(0.0f,1.0f,0.0f),
+         new Vector3(0.0f,1.0f,0.0f),
+         new Vector3(0.0f,1.0f,0.0f),
+         new Vector3(0.0f,1.0f,0.0f)
+    };
+    public Vector3 RigCamFocusVelocity = new Vector3();
+
+    public int RigCamCamPose = 0;
+
+    public float RigCamTimer = 0f;
+
+    public float RigCamChangeMin = 10f;
+    public float RigCamChangeMax = 15f;
+    
+   
+
+    //
+    public void RigCamStart()
+    {
+       RigCamObject = new GameObject();
+        FloorReference = new GameObject();
+        //These items will be children of RigCamObject
+        RigCamCamera = new GameObject();
+        RigCamFocus = new GameObject();
+
+
+    //parent focus and camera to object.
+    RigCamCamera.transform.parent = RigCamObject.transform;
+        RigCamFocus.transform.parent = RigCamObject.transform;
+
+        RigCamCamera.transform.localPosition = RigCamCameraPosition;
+        RigCamFocus.transform.localPosition = RigCamFocusPosition;
+        RigCamObject.transform.position = new Vector3(0.0f, 0.0f, 0.0f);
+
+        debug("RigCam stuff should be set up");
+    }
+    public void RigCam()
+    {
+        //camera timer to change targets
+        RigCamTimer -= Time.deltaTime;
+        if (RigCamTimer < 0.0f)
+        {
+
+            //Set timer to random value 
+            RigCamTimer += UnityEngine.Random.Range(RigCamChangeMin, RigCamChangeMax);
+            //Select another cameraposition.
+            RigCamCamPose = UnityEngine.Random.Range(0, RigCamObjectLookPositions.Length);
+        }
+        //simple lerp localpositions of camera and focus to desired positions
+        /*
+         * TODO
+         * 
+         * 1. set another vector3 and have the RigCamObject do a Lookrotation at it. 
+         * 2. Smoothdamp that object around to different locations. 
+         * 
+         * the idea is that since the RigCamObject is stationary, everything will rotate around the same way. Hopefully. 
+         */
+        //
+        var head = _helper.playerHead;
+
+        //get a line that's straight ahead from the playerhead. 
+        Vector3 headposition = new Vector3(head.position.x, 0.0f, head.position.z);//playerhead floor position. 
+        Vector3 ahead = head.TransformPoint(RigCamObjectPosition);//point ahead of the head
+        ahead = new Vector3(ahead.x, 0.0f, ahead.z);
+
+        FloorReference.transform.position = headposition;
+        FloorReference.transform.rotation = Quaternion.LookRotation(ahead - headposition);//floor found. Moves will be done in relation to this object. 
+
+        RigCamObject.transform.position = Vector3.SmoothDamp(RigCamObject.transform.position, FloorReference.transform.TransformPoint(RigCamObjectPosition), ref RigCamObjectVelocity, RigCamObjectResponsiveness);
+
+        Vector3 rootlookat = FloorReference.transform.TransformPoint(RigCamObjectLookPositions[RigCamCamPose]);
+
+        RigCamObjectLook = Vector3.SmoothDamp(RigCamObjectLook, rootlookat, ref RigCamObjectLootTargetVelocity, RigCamObjectResponsiveness);
+
+        RigCamObject.transform.rotation = Quaternion.LookRotation(RigCamObjectLook - RigCamObject.transform.position);
+
+        //apply result to camera
+        Vector3 looky = RigCamFocus.transform.position - RigCamCamera.transform.position;
+        Quaternion rot = Quaternion.LookRotation(looky);
+
+
+        _helper.UpdateCameraPose(RigCamCamera.transform.position, rot);
+        _helper.UpdateFov(_settings.fov);
+
 
 
     }
+    
     public void FollowCam()
     {
         /*
@@ -714,6 +1171,7 @@ public class MoriBScam : IPluginCameraBehaviour {
          * and head location/rotation assuming location and/or rotation
          * is out of certain tolerances. 
          */
+
         Transform headTransform = _helper.playerHead;
         if (Quaternion.Angle(headTransform.rotation, headTarget.transform.rotation) > 15.0f)
         {
