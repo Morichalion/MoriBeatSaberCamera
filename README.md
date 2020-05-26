@@ -8,7 +8,7 @@ There's also an overlay for your current score, and a way for twitch viewers to 
 Next thing on the agenda is setting up a straight-forward unity project to smooth out overlay production.
 
 # Installation
-1. Ensure that you have the sdkv2_compositor version of LIV installed.
+1. Ensure that you have the public_beta version of LIV installed.
 
 2. Extract the .zip to ~/Documents/LIV/Plugins/CameraBehaviours
 
