@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright 2019 LIV inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
@@ -58,7 +58,7 @@ public class MoriBScam : IPluginCameraBehaviour {
     // Author name.
     public string author => "Morichalion";
     // Plugin version.
-    public string version => "0.0.12";
+    public string version => "0.0.15";
     // Localy store the camera helper provided by LIV.
     PluginCameraHelper _helper;
     //float _elaspedTime;
@@ -213,11 +213,7 @@ public class MoriBScam : IPluginCameraBehaviour {
                             string[] blah = line.Split('=');
                             RigCamChangeMax = float.Parse(blah[1]);
                         }
-                        if (line.Contains("RigCamChangeMax ="))
-                        {
-                            string[] blah = line.Split('=');
-                            RigCamChangeMax = int.Parse(blah[1]);
-                        }
+                        
                         if (line.Contains("MenuCamPosition"))
                         {
                             string[] blah = line.Split('=');
@@ -387,12 +383,15 @@ public class MoriBScam : IPluginCameraBehaviour {
     }
 
 
-
     // OnActivate function is called when your camera behaviour was selected by the user.
     // The pluginCameraHelper is provided to you to help you with Player/Camera related operations.
 
     public bool Activated = false;
+    GameObject tempTest;
+    MorichalionStuff.OverlayController oLay;
     public void OnActivate(PluginCameraHelper helper) {
+        debug("Activate started");
+        
         //local camera helper reference
         _helper = helper;
 
@@ -403,16 +402,16 @@ public class MoriBScam : IPluginCameraBehaviour {
 
         /* overlay stuff defined here. */
         
-            if (overlayactive == true)
+       if (overlayactive == true)
             {
             debug("trying to set up overlay");
             try
             {
                 //Trying to instantiate an arbitrary prefab. 
                 string assetPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                string p = Path.Combine(assetPath, @"LIV\Plugins\CameraBehaviours\MoriBScam\overlay.yap");
+                string dp = Path.Combine(assetPath, @"LIV\Plugins\CameraBehaviours\MoriBScam\overlay.yap");
                 //debug("gettting items from here: " + p);
-                AssetBundle myasset = AssetBundle.LoadFromFile(p);
+                AssetBundle myasset = AssetBundle.LoadFromFile(dp);
             
                 var prefab = myasset.LoadAsset<GameObject>("Overlay");
                 myasset.Unload(false);
@@ -451,29 +450,21 @@ public class MoriBScam : IPluginCameraBehaviour {
 
 
                 //Find reference WorldCamera so UI stuff can be attached to it. 
-                foreach (Camera c in Camera.allCameras)
-                {
-               
-                debug(c.name);
-                    if (c.name == "NativeOverlayCamera")
-                    {
-                    Transform blah = _helper.manager.camera.uiCamera.transform;
-                        //Found WorldCamera. Set overlay as child and resize/rotate it.
-
-                        overlay.transform.parent = blah.transform;
-                        overlay.transform.transform.rotation = blah.transform.rotation;
-                    debug("trying to set overlay offset X:" + overlayOffsetX + " Y:" + overlayOffsetY);
-                    try
-                    {
-                        overlay.transform.transform.localPosition = new Vector3((overlayOffsetX + 0f), overlayOffsetY + .05f, 1.0f);
-                    }
-                    catch { debug("This thing broke at applying the offsets"); }
-                        overlay.transform.localScale = new Vector3(overlayScale* 0.1f, overlayScale * 0.1f, overlayScale * 0.1f);
-                        overlay.transform.transform.Rotate(-90.0f, 0f, 0f);
-                        overlay.SetActive(false);
-                       
-                    }
-                }
+                
+             Transform blah = _helper.manager.camera.uiCamera.transform;
+             //Found WorldCamera. Set overlay as child and resize/rotate it.
+             overlay.transform.parent = blah.transform;
+             overlay.transform.transform.rotation = blah.transform.rotation;
+             debug("trying to set overlay offset X:" + overlayOffsetX + " Y:" + overlayOffsetY);
+             overlay.transform.transform.localPosition = new Vector3((overlayOffsetX + 0f), overlayOffsetY + .05f, 1.0f);
+             Vector3 p = new Vector3((overlayOffsetX + 0f), overlayOffsetY + .05f, 1.0f);
+             overlay.transform.localScale = new Vector3(overlayScale* 0.1f, overlayScale * 0.1f, overlayScale * 0.1f);
+             Vector3 s = new Vector3(overlayScale * 0.1f, overlayScale * 0.1f, overlayScale * 0.1f);
+             overlay.transform.transform.Rotate(-90.0f, 0f, 0f);
+             oLay = overlay.AddComponent<MorichalionStuff.OverlayController>();
+             oLay.ini(_helper,p,s);
+             overlay.SetActive(false);
+                    
             }
         
 
@@ -505,10 +496,14 @@ public class MoriBScam : IPluginCameraBehaviour {
                 {
                     phase = 0;
                     gctype = "menu";
+                    if(overlayactive == true) { 
+                    
                     overlayLayerCur = 9;
                     score = "0  ";
                     scorePercent = "100%";
                     overlay.SetActive(false);
+                    oLay.OnActivate();
+                }
                 //debug("Should be entering Menu Phase.");
 
 
@@ -517,17 +512,22 @@ public class MoriBScam : IPluginCameraBehaviour {
             //song phase (select which ones)
             if (e.Data.Contains("scene\":\"Song"))
                 {
-                    overlay.SetActive(true);
                     phase = 1;
-                    overlayLayerCur = 10;
-                    score = "0  ";
-                    scorePercent = "100%";
-                //debug("Should be entering Song Phase.");
 
-                //set up the cover texture
-                JObject menuInfo = JObject.Parse(e.Data);
-                    SongTitle = menuInfo["status"]["beatmap"]["songName"].ToString();
-                    coverTexData = menuInfo["status"]["beatmap"]["songCover"].ToString();
+                    if (overlayactive == true)
+                    {
+                        overlay.SetActive(true);
+                        oLay.OnActivate();
+                        overlayLayerCur = 10;
+                        score = "0  ";
+                        scorePercent = "100%";
+                        //debug("Should be entering Song Phase.");
+
+                        //set up the cover texture
+                        JObject menuInfo = JObject.Parse(e.Data);
+                        coverTexData = menuInfo["status"]["beatmap"]["songCover"].ToString();
+                        SongTitle = menuInfo["status"]["beatmap"]["songName"].ToString();
+                    }
                 //'standard' map types
                 if (e.Data.Contains("mode\":\"SoloStandard") || e.Data.Contains("mode\":\"PartyStandard") || e.Data.Contains("mode\":\"SoloNoArrows") || e.Data.Contains("mode\":\"PartyNoArrows"))
                     {
@@ -542,35 +542,40 @@ public class MoriBScam : IPluginCameraBehaviour {
                 }//ScoreChanged event. 
             if (e.Data.Contains("scoreChanged"))
                 {
-                //gets score information for the overlay
-                JObject hit = JObject.Parse(e.Data);
-                //Regular score. 
-                score = hit["status"]["performance"]["score"].ToString();
+                    if (overlayactive == true)
+                    {
+                        //gets score information for the overlay
+                        JObject hit = JObject.Parse(e.Data);
+                        //Regular score. 
+                        score = hit["status"]["performance"]["score"].ToString();
 
-                //Percent
-                int curScore = (int)hit["status"]["performance"]["score"];
-                    int maxScore = (int)hit["status"]["performance"]["currentMaxScore"];
-                    float curPercent = (float)curScore / maxScore;
-                    curPercent *= 100.0f;
-                    scorePercent = curPercent.ToString().Substring(0, 4) + "%";
-                //rank
-                rank = hit["status"]["performance"]["rank"].ToString();
-
+                        //Percent
+                        int curScore = (int)hit["status"]["performance"]["score"];
+                        int maxScore = (int)hit["status"]["performance"]["currentMaxScore"];
+                        float curPercent = (float)curScore / maxScore;
+                        curPercent *= 100.0f;
+                        scorePercent = curPercent.ToString().Substring(0, 4) + "%";
+                        //rank
+                        rank = hit["status"]["performance"]["rank"].ToString();
+                    }
                 }
-            if (e.Data.Contains("t\":\"noteCut"))
+                if (overlayactive == true)
                 {
-                    JObject slice = JObject.Parse(e.Data);
-                    int combo = (int)slice["status"]["performance"]["combo"];
-                }
-            if (e.Data.Contains("t\":\"noteMissed"))
-                {
-                    JObject hit = JObject.Parse(e.Data);
-                    int curScore = (int)hit["status"]["performance"]["score"];
-                    int maxScore = (int)hit["status"]["performance"]["currentMaxScore"];
-                    float curPercent = (float)curScore / maxScore;
-                    curPercent *= 100.0f;
-                    scorePercent = curPercent.ToString().Substring(0, 4) + "%";
+                    if (e.Data.Contains("t\":\"noteCut"))
+                    {
+                        JObject slice = JObject.Parse(e.Data);
+                        int combo = (int)slice["status"]["performance"]["combo"];
+                    }
+                    if (e.Data.Contains("t\":\"noteMissed"))
+                    {
+                        JObject hit = JObject.Parse(e.Data);
+                        int curScore = (int)hit["status"]["performance"]["score"];
+                        int maxScore = (int)hit["status"]["performance"]["currentMaxScore"];
+                        float curPercent = (float)curScore / maxScore;
+                        curPercent *= 100.0f;
+                        scorePercent = curPercent.ToString().Substring(0, 4) + "%";
 
+                    }
                 }
             };
         ws.OnClose += (sender, e) =>
@@ -578,20 +583,22 @@ public class MoriBScam : IPluginCameraBehaviour {
             // debug("Beat Saber websocket closed because: " + e.Reason);
             // debug("Retry timer is at " + wsRetry.ToString());
             //debug("ws Status was " + wsStatus);
-            if (wsStatus != "closing")
-                {
+            
                     wsStatus = "closed";
-
-                    wsRetry = 0.0f;
-                }
+                    debug("Beat Saber Websocket is closed");
+                    wsRetry = 2.0f;
+                
             };
         ws.OnError += (sender, e) =>
             {
                 debug("Beatsaber websocket error: " + e.Message);
                 debug("Exception is: " + e.Exception);
-                    wsRetry = 0.0f;
-                
+                wsRetry = 2.0f;
+                wsStatus = "closing";
+                ws.CloseAsync();
+
             };
+        
         debug("BS websocket good now");
 
         //BS websocket End
@@ -687,9 +694,13 @@ public class MoriBScam : IPluginCameraBehaviour {
         //RigCam() items
         
             RigCamStart();
+       
         
         debug("Activated right");
         Activated = true;
+
+             
+
     }
 
     public float handsraised = 0.0f;
@@ -784,7 +795,7 @@ public class MoriBScam : IPluginCameraBehaviour {
             /*
             * set the overlay layer. OverlayLayerCur is defined in a websocket event.
             * updating the overlay needs to be done during OnUpdate();
-            */
+            //don't think I need this anymore. 
             if (overlayLayerCur != overlayLayer)
             {
                 foreach (Transform t in overlay.GetComponentInChildren<Transform>(true))
@@ -794,6 +805,7 @@ public class MoriBScam : IPluginCameraBehaviour {
                 }
                 overlayLayer = overlayLayerCur;
             }
+            */
             /*
              * Updating the icon. 
              * coverTexData gets updated in the websocket. 
@@ -931,7 +943,7 @@ public class MoriBScam : IPluginCameraBehaviour {
         debug("OnDestroy() was fired.");
 
     }
-    public string debugLogging = "true";
+    public string debugLogging = "false";
     public void debug(string str)
     {
         if (debugLogging == "true")
@@ -945,8 +957,6 @@ public class MoriBScam : IPluginCameraBehaviour {
                 sw.WriteLine(str);
             }
         }
-        
-        
     }
 
     /// <summary>

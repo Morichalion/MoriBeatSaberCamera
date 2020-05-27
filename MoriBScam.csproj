@@ -38,6 +38,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Speech" />
     <Reference Include="UnityEngine">
       <HintPath>UnityEngine.dll</HintPath>
       <Private>False</Private>
@@ -74,6 +75,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MonoBehaviors.cs" />
+    <Compile Include="Reebooter.cs" />
     <Compile Include="MoriBScam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
