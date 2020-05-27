@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright 2019 LIV inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
@@ -485,7 +485,7 @@ public class MoriBScam : IPluginCameraBehaviour {
         wsStatus = "closed";
         ws.OnOpen += (sender, e) =>
             {
-                //debug("BS connection open");
+                debug("BS connection open");
                 wsStatus = "open";
             };
         ws.OnMessage += (sender, e) =>
@@ -494,6 +494,7 @@ public class MoriBScam : IPluginCameraBehaviour {
             //Triggered when menu gets selected. Resets all overlay values to default. 
             if (e.Data.Contains("scene\":\"Menu"))
                 {
+                    //debug("Menu mode. Data: " + e.Data);
                     phase = 0;
                     gctype = "menu";
                     if(overlayactive == true) { 
@@ -512,6 +513,7 @@ public class MoriBScam : IPluginCameraBehaviour {
             //song phase (select which ones)
             if (e.Data.Contains("scene\":\"Song"))
                 {
+                    //debug("Song mode. Data: " +  e.Data);
                     phase = 1;
 
                     if (overlayactive == true)
@@ -586,18 +588,32 @@ public class MoriBScam : IPluginCameraBehaviour {
             
                     wsStatus = "closed";
                     debug("Beat Saber Websocket is closed");
-                    wsRetry = 2.0f;
+                    wsRetry = 0f;
                 
             };
         ws.OnError += (sender, e) =>
             {
+               
                 debug("Beatsaber websocket error: " + e.Message);
                 debug("Exception is: " + e.Exception);
-                wsRetry = 2.0f;
+
+                wsRetry = 0f;
                 wsStatus = "closing";
-                ws.CloseAsync();
+                
+                if (e.Message.Contains("occurred in closing the connection")) {
+                    wsStatus = "closed";
+
+                } else {
+                    
+                    if (ws.IsAlive)
+                    {
+                        debug("Error wasn't about something closing. So I'm attempting to close it so it can restart");
+                        ws.CloseAsync();
+                    }
+                }
 
             };
+
         
         debug("BS websocket good now");
 
@@ -826,11 +842,11 @@ public class MoriBScam : IPluginCameraBehaviour {
         if (wsStatus == "closed")
         {
             wsRetry += Time.deltaTime;
-            if (wsRetry > 1.0f)
+            if (wsRetry > 2.0f && !ws.IsAlive)
             {
                 debug("Attempting to connect to BS");
                 wsStatus = "open";
-                wsRetry = 0.0f;
+                wsRetry = -1.0f;
                 ws.ConnectAsync();
             }
         }
