@@ -58,7 +58,7 @@ public class MoriBScam : IPluginCameraBehaviour {
     // Author name.
     public string author => "Morichalion";
     // Plugin version.
-    public string version => "0.0.15";
+    public string version => "0.0.16";
     // Localy store the camera helper provided by LIV.
     PluginCameraHelper _helper;
     //float _elaspedTime;
