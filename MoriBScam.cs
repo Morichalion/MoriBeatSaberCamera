@@ -58,7 +58,7 @@ public class MoriBScam : IPluginCameraBehaviour {
     // Author name.
     public string author => "Morichalion";
     // Plugin version.
-    public string version => "0.0.16";
+    public string version => "0.0.17";
     // Localy store the camera helper provided by LIV.
     PluginCameraHelper _helper;
     //float _elaspedTime;
@@ -593,25 +593,30 @@ public class MoriBScam : IPluginCameraBehaviour {
             };
         ws.OnError += (sender, e) =>
             {
-               
-                debug("Beatsaber websocket error: " + e.Message);
-                debug("Exception is: " + e.Exception);
+                if (e.Message.Contains("OnMessage event"))
+                {
+                    //Nothing to see here. Doing nothing here. 
+                    debug("Beatsaber websocket error: " + e.Message);
+                    debug("Exception is: " + e.Exception);
+                }
+                else
+                {
+                    wsRetry = 0f;
+                    wsStatus = "closing";
 
-                wsRetry = 0f;
-                wsStatus = "closing";
-                
-                if (e.Message.Contains("occurred in closing the connection")) {
-                    wsStatus = "closed";
-
-                } else {
-                    
-                    if (ws.IsAlive)
+                    if (e.Message.Contains("occurred in closing the connection"))
                     {
-                        debug("Error wasn't about something closing. So I'm attempting to close it so it can restart");
-                        ws.CloseAsync();
+                        wsStatus = "closed";
+                    }
+                    else
+                    {
+                        if (ws.IsAlive)
+                        {
+                            debug("Error wasn't about something closing. So I'm attempting to close it so it can restart");
+                            ws.CloseAsync();
+                        }
                     }
                 }
-
             };
 
         
