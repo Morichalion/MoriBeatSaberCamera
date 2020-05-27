@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using UnityEngine;
-//This is going to be a .dll that controls a gameobject that will be instantiated and just "runs forever"
 namespace MorichalionStuff
 {
     public class OverlayController : MonoBehaviour {
