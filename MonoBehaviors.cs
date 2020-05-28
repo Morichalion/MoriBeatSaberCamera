@@ -23,16 +23,8 @@ namespace MorichalionStuff
         }
         public void OnActivate()
         {
-            try {
-            this.transform.parent = _helper.manager.camera.uiCamera.transform;
-            this.transform.localPosition = position;
-            this.transform.rotation = _helper.manager.camera.uiCamera.transform.rotation;
-            this.transform.Rotate(-90.0f, 0f, 0f);
-            debug("Should have updated the parent, position, and rotation of the overlay. ");
-            }catch(System.Exception bad)
-            {
-                debug("Broke bedcause: " + bad.Message.ToString());
-            }
+            updatepostion = true;
+            debug("OnActivate in OverlayController fired");
 
         }
         
@@ -55,9 +47,26 @@ namespace MorichalionStuff
         {
 
         }
-        void OnUpdate()
+        private bool updatepostion = false;
+       public void OnUpdate()
         {
+            if(updatepostion == true)
+            {
+                updatepostion = false;
+                try
+                {
+                    this.transform.parent = _helper.manager.camera.worldCamera.transform;
+                    this.transform.localPosition = position;
+                    this.transform.rotation = _helper.manager.camera.worldCamera.transform.rotation;
+                    this.transform.Rotate(-90.0f, 0f, 0f);
+                    debug("Should have updated the parent, position, and rotation of the overlay. ");
+                }
+                catch (System.Exception bad)
+                {
+                    debug("Broke bedcause: " + bad.Message.ToString());
+                }
 
+            }
         }
         public void ini(PluginCameraHelper helper, Vector3 pos, Vector3 scal)
         {

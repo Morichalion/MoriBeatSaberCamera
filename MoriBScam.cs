@@ -58,7 +58,7 @@ public class MoriBScam : IPluginCameraBehaviour {
     // Author name.
     public string author => "Morichalion";
     // Plugin version.
-    public string version => "0.0.18";
+    public string version => "0.0.20";
     // Localy store the camera helper provided by LIV.
     PluginCameraHelper _helper;
     //float _elaspedTime;
@@ -387,7 +387,6 @@ public class MoriBScam : IPluginCameraBehaviour {
     // The pluginCameraHelper is provided to you to help you with Player/Camera related operations.
 
     public bool Activated = false;
-    GameObject tempTest;
     MorichalionStuff.OverlayController oLay;
     public void OnActivate(PluginCameraHelper helper) {
         debug("Activate started");
@@ -451,7 +450,7 @@ public class MoriBScam : IPluginCameraBehaviour {
 
                 //Find reference WorldCamera so UI stuff can be attached to it. 
                 
-             Transform blah = _helper.manager.camera.uiCamera.transform;
+             Transform blah = _helper.manager.camera.worldCamera.transform;
              //Found WorldCamera. Set overlay as child and resize/rotate it.
              overlay.transform.parent = blah.transform;
              overlay.transform.transform.rotation = blah.transform.rotation;
@@ -722,7 +721,7 @@ public class MoriBScam : IPluginCameraBehaviour {
         debug("Activated right");
         Activated = true;
 
-             
+        oLay.debugLogging = debugLogging;
 
     }
 
@@ -806,7 +805,7 @@ public class MoriBScam : IPluginCameraBehaviour {
     // and has not been updated yet. If that is a concern, it is recommended to use OnLateUpdate instead.
     public void OnUpdate() {
         if(Activated == false) { goto OnUpdateEnd; }
-
+        oLay.OnUpdate();
         Transform headTransform = _helper.playerHead;
         //overlay stuff. Should only be messed with if it's active. 
         if (overlayactive == true)
