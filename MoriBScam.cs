@@ -58,7 +58,7 @@ public class MoriBScam : IPluginCameraBehaviour {
     // Author name.
     public string author => "Morichalion";
     // Plugin version.
-    public string version => "0.0.17";
+    public string version => "0.0.18";
     // Localy store the camera helper provided by LIV.
     PluginCameraHelper _helper;
     //float _elaspedTime;
@@ -492,6 +492,7 @@ public class MoriBScam : IPluginCameraBehaviour {
             {
 
             //Triggered when menu gets selected. Resets all overlay values to default. 
+            
             if (e.Data.Contains("scene\":\"Menu"))
                 {
                     //debug("Menu mode. Data: " + e.Data);
@@ -593,11 +594,12 @@ public class MoriBScam : IPluginCameraBehaviour {
             };
         ws.OnError += (sender, e) =>
             {
+                
                 if (e.Message.Contains("OnMessage event"))
                 {
                     //Nothing to see here. Doing nothing here. 
-                    debug("Beatsaber websocket error: " + e.Message);
-                    debug("Exception is: " + e.Exception);
+                    debug("Beatsaber websocket error: OnMessage event");
+                    //debug("Exception is: " + e.Exception);
                 }
                 else
                 {
