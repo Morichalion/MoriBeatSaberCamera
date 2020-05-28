@@ -1,0 +1,11 @@
+C:\Users\thelr\Documents\GitHub\MoriBeatSaberCamera\bin\MoriBScam.dll
+C:\Users\thelr\Documents\GitHub\MoriBeatSaberCamera\bin\Newtonsoft.Json.dll
+C:\Users\thelr\Documents\GitHub\MoriBeatSaberCamera\bin\UnityEngine.AnimationModule.dll
+C:\Users\thelr\Documents\GitHub\MoriBeatSaberCamera\bin\UnityEngine.AssetBundleModule.dll
+C:\Users\thelr\Documents\GitHub\MoriBeatSaberCamera\bin\UnityEngine.ImageConversionModule.dll
+C:\Users\thelr\Documents\GitHub\MoriBeatSaberCamera\bin\UnityEngine.Networking.dll
+C:\Users\thelr\Documents\GitHub\MoriBeatSaberCamera\bin\UnityEngine.TextRenderingModule.dll
+C:\Users\thelr\Documents\GitHub\MoriBeatSaberCamera\bin\websocket-sharp.dll
+C:\Users\thelr\Documents\GitHub\MoriBeatSaberCamera\obj\x64\Plugin\MoriBScam.csprojAssemblyReference.cache
+C:\Users\thelr\Documents\GitHub\MoriBeatSaberCamera\obj\x64\Plugin\MoriBScam.csproj.CopyComplete
+C:\Users\thelr\Documents\GitHub\MoriBeatSaberCamera\obj\x64\Plugin\MoriBScam.dll

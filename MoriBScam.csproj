@@ -76,9 +76,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MonoBehaviors.cs" />
-    <Compile Include="Reebooter.cs" />
     <Compile Include="MoriBScam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reebooter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeResolveReferences">
