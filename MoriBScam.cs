@@ -58,7 +58,7 @@ public class MoriBScam : IPluginCameraBehaviour {
     // Author name.
     public string author => "Morichalion";
     // Plugin version.
-    public string version => "0.0.20";
+    public string version => "0.0.21";
     // Localy store the camera helper provided by LIV.
     PluginCameraHelper _helper;
     //float _elaspedTime;
@@ -261,8 +261,9 @@ public class MoriBScam : IPluginCameraBehaviour {
                             if (!line.Contains("no"))
                             {
                                 overlayactive = true;
-                                
+
                             }
+                            else { overlayactive = false; }
                         }
                         if (line.Contains("OverlayScale ="))
                         {
@@ -720,9 +721,10 @@ public class MoriBScam : IPluginCameraBehaviour {
         
         debug("Activated right");
         Activated = true;
-
-        oLay.debugLogging = debugLogging;
-
+        if (overlayactive == true)
+        {
+            oLay.debugLogging = debugLogging;
+        }
     }
 
     public float handsraised = 0.0f;
@@ -805,11 +807,12 @@ public class MoriBScam : IPluginCameraBehaviour {
     // and has not been updated yet. If that is a concern, it is recommended to use OnLateUpdate instead.
     public void OnUpdate() {
         if(Activated == false) { goto OnUpdateEnd; }
-        oLay.OnUpdate();
+        
         Transform headTransform = _helper.playerHead;
         //overlay stuff. Should only be messed with if it's active. 
         if (overlayactive == true)
         {
+            oLay.OnUpdate();
             overPercent.text = scorePercent;
             overScore.text = "Score: " + score;
             overRank.text = rank;
