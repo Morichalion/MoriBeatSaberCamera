@@ -418,33 +418,7 @@ public class MoriBScam : IPluginCameraBehaviour {
             
                 overlay = UnityEngine.Object.Instantiate(prefab);
                 //set layers for each object, assign each to variables in turn.
-                foreach (Transform t in overlay.GetComponentInChildren<Transform>(true))
-                {
-                    t.gameObject.layer = overlayLayerCur;
-                    string name = t.gameObject.name;
-                    //debug("Changed layer on " + t.gameObject.name);
-                    //define overlay elements that need to be referened later on. 
-                    if (name == "Icon")
-                    {
-                        overIcon = t.gameObject;
-                    }
-                    if (name == "Score")
-                    {
-                        overScore = t.gameObject.GetComponent<TextMesh>();
-                    }
-                    if (name == "Rank")
-                    {
-                        overRank = t.gameObject.GetComponent<TextMesh>();
-                    }
-                    if (name == "Percent")
-                    {
-                        overPercent = t.gameObject.GetComponent<TextMesh>();
-                    }
-                    if (name == "Title")
-                    {
-                        overTitle = t.gameObject.GetComponent<TextMesh>();
-                    }
-                }
+                
                 debug("Got to end of overlay gen. Camera selection next");
             } catch (Exception e) { debug("found it: " + e.Message); }
 
@@ -498,14 +472,16 @@ public class MoriBScam : IPluginCameraBehaviour {
                     //debug("Menu mode. Data: " + e.Data);
                     phase = 0;
                     gctype = "menu";
-                    if(overlayactive == true) { 
+                    if(overlayactive == true) 
+                    { 
                     
-                    overlayLayerCur = 9;
+                    
                     score = "0  ";
                     scorePercent = "100%";
+                    
                     overlay.SetActive(false);
                     oLay.OnActivate();
-                }
+                    }
                 //debug("Should be entering Menu Phase.");
 
 
@@ -542,10 +518,10 @@ public class MoriBScam : IPluginCameraBehaviour {
                         gctype = "follow";
                     }
 
-                }//ScoreChanged event. 
-            if (e.Data.Contains("scoreChanged"))
-                {
-                    if (overlayactive == true)
+                }//ScoreChanged event.
+                if (overlayactive == true)
+                { 
+                    if (e.Data.Contains("scoreChanged"))
                     {
                         //gets score information for the overlay
                         JObject hit = JObject.Parse(e.Data);
@@ -561,9 +537,8 @@ public class MoriBScam : IPluginCameraBehaviour {
                         //rank
                         rank = hit["status"]["performance"]["rank"].ToString();
                     }
-                }
-                if (overlayactive == true)
-                {
+                
+                
                     if (e.Data.Contains("t\":\"noteCut"))
                     {
                         JObject slice = JObject.Parse(e.Data);
@@ -812,7 +787,7 @@ public class MoriBScam : IPluginCameraBehaviour {
         //overlay stuff. Should only be messed with if it's active. 
         if (overlayactive == true)
         {
-            oLay.OnUpdate();
+            
             overPercent.text = scorePercent;
             overScore.text = "Score: " + score;
             overRank.text = rank;
@@ -911,12 +886,21 @@ public class MoriBScam : IPluginCameraBehaviour {
                 }
             }
         ManualSwitcher();
+        
     OnUpdateEnd:
         ;
     }
+    public GameObject olayParent = new GameObject();
 
     // OnLateUpdate is called after OnUpdate also everyframe and has a higher chance that transform updates are more recent.
     public void OnLateUpdate() {
+        if (overlayactive == true)
+        {
+            olayParent.transform.position = camPosition;
+            olayParent.transform.rotation = camRotation;
+
+            oLay.OnUpdate(olayParent.transform);
+        }
     }
 
     // OnDeactivate is called when the user changes the profile to other camera behaviour or when the application is about to close.
@@ -1189,7 +1173,8 @@ public class MoriBScam : IPluginCameraBehaviour {
         Vector3 looky = RigCamFocus.transform.position - RigCamCamera.transform.position;
         Quaternion rot = Quaternion.LookRotation(looky);
 
-
+        camPosition = RigCamCamera.transform.position;
+        camRotation = rot;
         _helper.UpdateCameraPose(RigCamCamera.transform.position, rot);
         _helper.UpdateFov(_settings.fov);
 
