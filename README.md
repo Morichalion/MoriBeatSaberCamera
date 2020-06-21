@@ -24,13 +24,3 @@ Next thing on the agenda is setting up a straight-forward unity project to smoot
 The config file is created at ~Documents\LIV\Plugins\CameraBehaviours\MoriBScam\ini.txt on the first run of the plugin. Directions should be printed in a fairly easy-to-understand way.
 
 The overlay and twitch integration is off by default. Make the appropriate changes to the ini.txt file to enable these features. 
-
-
-# Usage
-Twitch command currently require broadcaster, moderator, or VIP status to use. Those commands are: 
-
-!cam fp
-
-!cam follow
-
-!cam menu
