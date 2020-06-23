@@ -52,7 +52,6 @@ namespace MorichalionStuff
                         overTitle = t.gameObject.GetComponent<TextMesh>();
                     }
                 }
-
         }
         public void OnActivate()
         {
@@ -105,18 +104,18 @@ namespace MorichalionStuff
         private GameObject RigCamObject; //Center point for the camera rig.
         private GameObject FloorReference; //transform on representing the head's directions on the floor. 
         public GameObject CameraLook; //CameraLook
-        private List<Vector3> CameraLooks; //List of positions that that coule be assigned to 'CameraPosition'
+        public List<Vector3> CameraLooks; //List of positions that that coule be assigned to 'CameraPosition'
         private Vector3 CameraTargetPosition = new Vector3(0.0f, 0.0f, 0.0f);
         private Vector3 CameraTargetPositionVelocity = new Vector3(0.0f, 0.0f, 0.0f);
 
-        private Vector3 RigCamObjectPositionGoal;
+        public Vector3 RigCamObjectPositionGoal;
         private Vector3 RigCamObjectVelocity = new Vector3(0.0f,0.0f,0.0f);
 
 
-        private float timeMin = 10.0f;
-        private float timeMax = 15.0f;
-        private float waiting = 0.1f;
-
+        public float timeMin = 10.0f;
+        public float timeMax = 15.0f;
+        public float waiting = 0.1f;
+        public float responsiveness = 1.5f;
         public GameObject UpdateCameraWithThis;
         public Transform worlCam;
         //private Vector3 CameraPosition; //LocalPosition of the camera in relation to the rigCamObject. 
@@ -129,7 +128,7 @@ namespace MorichalionStuff
 
                 CameraTargetPosition = CameraLooks[UnityEngine.Random.Range(0, CameraLooks.Count)];
             }
-            CameraLook.transform.position = Vector3.SmoothDamp(CameraLook.transform.position, CameraTargetPosition, ref CameraTargetPositionVelocity, 1.5f);
+            CameraLook.transform.position = Vector3.SmoothDamp(CameraLook.transform.position, CameraTargetPosition, ref CameraTargetPositionVelocity, responsiveness);
             
             
             
@@ -144,12 +143,13 @@ namespace MorichalionStuff
 
             //update the look point. 
 
-            RigCamObject.transform.position = Vector3.SmoothDamp(RigCamObject.transform.position, FloorReference.transform.TransformPoint(RigCamObjectPositionGoal), ref RigCamObjectVelocity, 1.5f);
+            RigCamObject.transform.position = Vector3.SmoothDamp(RigCamObject.transform.position, FloorReference.transform.TransformPoint(RigCamObjectPositionGoal), ref RigCamObjectVelocity, responsiveness);
             RigCamObject.transform.rotation = Quaternion.LookRotation(CameraLook.transform.position - RigCamObject.transform.position);
 
             //orlCam.position = UpdateCameraWithThis.transform.position;
             //worlCam.rotation = UpdateCameraWithThis.transform.rotation;
             camhelper.UpdateCameraPose(UpdateCameraWithThis.transform.position, UpdateCameraWithThis.transform.rotation);
+            
 
 
             return CameraLook.transform.position;

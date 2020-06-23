@@ -13,9 +13,9 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
 	MoriBeatSaberCameraSettings _settings = new MoriBeatSaberCameraSettings();
 
 	public string ID => "MoriBeatSaberKam";
-	public string name => "Mori's Beat Saber Cam v0.1.0";
+	public string name => "Mori's Beat Saber Cam";
 	public string author => "Morichalion";
-	public string version => "0.1.0";
+	public string version => "0.1.1";
 
 	public IPluginSettings settings => _settings;
 
@@ -32,6 +32,7 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
 	public float overlayOffsetY = -.3f;
 	OverlayController overlayCon;
 
+	public float FOV = 60.0f;
 	//
 	RigCam rig;
 	menuCam men;
@@ -40,6 +41,13 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
     public void	OnActivate(PluginCameraHelper helper) {
 		_helper = helper;//got my cam stuff. 
 		BS = new BeatSaberStatus();
+		
+		rig = new RigCam();
+		rig.worlCam = helper.manager.camera.worldCamera.transform;
+		men = new menuCam();
+		
+		men.WorldCam = helper.manager.camera.worldCamera.transform;
+		CheckSettings();
 		if (overlayactive==true)
 		{
 			try
@@ -73,11 +81,6 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
 				overlayactive = false;
 			}
 		}
-		rig = new RigCam();
-		rig.worlCam = helper.manager.camera.worldCamera.transform;
-		men = new menuCam();
-
-		men.WorldCam = helper.manager.camera.worldCamera.transform;
 	}
 
 	public void OnDeactivate()

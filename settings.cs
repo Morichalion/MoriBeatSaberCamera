@@ -1,4 +1,5 @@
-﻿using System;
+﻿//Do this next. I'll probably just make this it's own class instead of a partial to the main one. 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
@@ -63,77 +64,52 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
 
                     while ((line = sr.ReadLine()) != null)
                     {
-                        if (line.Contains("RigLook ="))
-                        {
-                            string[] blah = line.Split('=');
-                            riglookpoints.Add(StringToVector3(blah[1]));
-                        }
-                        if (line.Contains("RigCamResponseTime ="))
-                        {
-                            string[] blah = line.Split('=');
-                            RigCamObjectResponsiveness = float.Parse(blah[1]);
-                        }
-                        if (line.Contains("RigCamChangeMin ="))
-                        {
-                            string[] blah = line.Split('=');
-                            RigCamChangeMin = float.Parse(blah[1]);
-                        }
-                        if (line.Contains("RigCamChangeMax ="))
-                        {
-                            string[] blah = line.Split('=');
-                            RigCamChangeMax = float.Parse(blah[1]);
-                        }
-
-                        if (line.Contains("MenuCamPosition"))
-                        {
-                            string[] blah = line.Split('=');
-                            MenuCamPosition = StringToVector3(blah[1]);
-                        }
-                        if (line.Contains("MenuCamLook"))
-                        {
-                            string[] blah = line.Split('=');
-                            MenuCamLook = StringToVector3(blah[1]);
-                        }
-                        if (line.Contains("DynCamPosition"))
-                        {
-                            string[] blah = line.Split('=');
-                            DynCamPosition = StringToVector3(blah[1]);
-                        }
-                        if (line.Contains("DynCamLook"))
-                        {
-                            string[] blah = line.Split('=');
-                            DynCamLook = StringToVector3(blah[1]);
-                        }
-                        if (line.Contains("Twitch Oath ="))
-                        {
-                            string[] blah = line.Split('=');
-                            twOath = blah[1].Trim();
-                        }
-                        if (line.Contains("Twitch Name ="))
-                        {
-                            string[] blah = line.Split('=');
-                            twName = blah[1].Trim();
-                        }
-                        if (line.Contains("Debug ="))
-                        {
-                            string[] blah = line.Split('=');
-                            debugLogging = blah[1].Trim();
-                        }
                         if (line.Contains("FieldOfView ="))
                         {
-                            //debug("Field of view default is " + _settings.fov.ToString());
                             string[] blah = line.Split('=');
-                            _settings.fov = float.Parse(blah[1].Trim());
-                            //debug("Field of view has been updated to " + _settings.fov.ToString());
+                            _helper.UpdateFov(float.Parse(blah[1]));
                         }
+
+                            if (line.Contains("MenuCamPosition ="))
+                        {
+                            string[] blah = line.Split('=');
+                            men.camPos = StringToVector3(blah[1]);
+                        }
+                        if (line.Contains("MenuCamLook ="))
+                        {
+                            string[] blah = line.Split('=');
+                            men.camLook = StringToVector3(blah[1]);
+                        }
+
+                        if (line.Contains("RigCamObjectPosition ="))
+                        {
+                            string[] blah = line.Split('=');
+                            rig.RigCamObjectPositionGoal = StringToVector3(blah[1]);
+                        }
+                        if (line.Contains("RigCamPosition ="))
+                        {
+                            string[] blah = line.Split('=');
+                            rig.UpdateCameraWithThis.transform.localPosition = StringToVector3(blah[1]);
+                        }
+
+                        if (line.Contains("RigCamCamerFocusPosition ="))
+                        {
+                            string[] blah = line.Split('=');
+                            rig.CameraLook.transform.position = StringToVector3(blah[1]);
+                        }
+
+
+
+                        
                         if (line.Contains("Overlay ="))
                         {
                             if (!line.Contains("no"))
                             {
                                 overlayactive = true;
-
+                                debug("Overlay should be active");
                             }
-                            else { overlayactive = false; }
+                            else
+                            { overlayactive = false;}
                         }
                         if (line.Contains("OverlayScale ="))
                         {
@@ -171,8 +147,19 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
                                 debug("Scale didn't parse");
                             }
                         }
+                        if (line.Contains("Debug ="))
+                        {
+                            string[] blah = line.Split('=');
+                            debugLogging = blah[1];
+                        }
+
+                        if(line.Contains("RigLook ="))
+                        {
+                            string[] blah = line.Split('=');
+                            riglookpoints.Add(StringToVector3(blah[1]));
+                        }
                     }
-                    RigCamObjectLookPositions = riglookpoints.ToArray();
+                    rig.CameraLooks = riglookpoints;
                 }
             }
             catch (Exception e)
@@ -185,6 +172,7 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
             //creates the file.
             using (var ws = new StreamWriter(@settingLoc))
             {
+
                 ws.WriteLine("*Morichalion's Lazy Streamer Beat Saber Camera for LIV Avatars settings.");
                 ws.WriteLine("*");
                 ws.WriteLine("*Field of view. Default is 60.");
@@ -192,56 +180,45 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
                 ws.WriteLine("*");
                 ws.WriteLine("*");
                 ws.WriteLine("*Units are in Meters.");
-                ws.WriteLine("*");
                 ws.WriteLine("*Left-Right,Up-Down,Forward-Back");
                 ws.WriteLine("*");
                 ws.WriteLine("*Menu camera settings. Origin is your playspace center.");
-                ws.WriteLine("MenuCamPosition = " + MenuCamPosition.ToString());
-                ws.WriteLine("MenuCamLook = " + MenuCamLook.ToString());
-                ws.WriteLine("*");
-                ws.WriteLine("*");
-                ws.WriteLine("*Dynamic camera settings. Location and rotation are in relation to your headset.");
-                ws.WriteLine("DynCamPosition = " + DynCamPosition.ToString());
-                ws.WriteLine("DynCamLook = " + DynCamLook.ToString());
+                ws.WriteLine("MenuCamPosition = " + men.camPos.ToString());
+                ws.WriteLine("MenuCamLook = " + men.camLook.ToString());
                 ws.WriteLine("*");
                 ws.WriteLine("*");
                 ws.WriteLine("**RigCam: Keeps camera at different positions in relation to an object's position and rotation.");
                 ws.WriteLine("*This setting is for the root of the camera rig. The position is in relation to a player's head on the floor. Default is one meter forward.");
-                ws.WriteLine("RigCamObjectPosition = " + RigCamObjectPosition.ToString());
+                ws.WriteLine("RigCamObjectPosition = "+ rig.RigCamObjectPositionGoal.ToString());
                 ws.WriteLine("*These are the camera position and the camera target point in relation to the RigCamObjectPosition");
-                ws.WriteLine("RigCamPosition = " + RigCamCameraPosition.ToString());
-                ws.WriteLine("RigCamCamerFocusPosition = " + RigCamFocusPosition.ToString());
+                ws.WriteLine("RigCamPosition = " + rig.UpdateCameraWithThis.transform.localPosition.ToString());
+                ws.WriteLine("RigCamCamerFocusPosition = " +rig.CameraLook.transform.position.ToString());
                 ws.WriteLine("*The rotation of RigCamObjectPosition is created by looking at one of these points. Just add more lines in the same format if you want more points. ");
                 //dump all values from an array.
-                foreach (Vector3 vec in RigCamObjectLookPositions)
+                foreach (Vector3 vec in rig.CameraLooks)
                 {
                     ws.WriteLine("RigLook = " + vec.ToString());
                 }
                 ws.WriteLine("*Frequency of change in seconds, wait time is random between min and max.");
-                ws.WriteLine("RigCamChangeMin = " + RigCamChangeMin.ToString());
-                ws.WriteLine("RigCamChangeMax = " + RigCamChangeMax.ToString());
+                ws.WriteLine("RigCamChangeMin = " + rig.timeMin.ToString());
+                ws.WriteLine("RigCamChangeMax = " + rig.timeMax.ToString());
                 ws.WriteLine("*Speed of camera change time. Make this someting less than RigCamChangeMin*");
-                ws.WriteLine("RigCamResponseTime = " + RigCamObjectResponsiveness.ToString());
+                ws.WriteLine("RigCamResponseTime = " + rig.responsiveness.ToString());
 
-                ws.WriteLine("*");
-                ws.WriteLine("*");
-                ws.WriteLine("**Twitch Login Info, for viewer-controlled cameras**");
-                ws.WriteLine("Twitch Oath = " + twOath);
-                ws.WriteLine("Twitch Name = " + twName);
+                
                 ws.WriteLine("*");
                 ws.WriteLine("*");
                 ws.WriteLine("*Overlay. Want it on? yap or no *");
                 ws.WriteLine("Overlay = no");
                 ws.WriteLine("*");
                 ws.WriteLine("*Scale and position stuff for the overlay");
-                ws.WriteLine("OverlayScale = 1.0");
-                ws.WriteLine("OverlayOffsetX = 0.0");
-                ws.WriteLine("OverlayOffsetY = 0.0");
+                ws.WriteLine("OverlayScale = .5");
+                ws.WriteLine("OverlayOffsetX = -.5");
+                ws.WriteLine("OverlayOffsetY = -.3");
                 ws.WriteLine("Debugging on for this plugin? true or false");
                 ws.WriteLine("Debug = False");
 
 
-                //Parse.TryParseFloat("0.0");
             }
         }
     }

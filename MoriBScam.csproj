@@ -79,6 +79,7 @@
     <Compile Include="BeatSaberStatus.cs" />
     <Compile Include="MonoBehaviors.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="settings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeResolveReferences">
