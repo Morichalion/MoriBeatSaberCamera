@@ -55,9 +55,13 @@ namespace MorichalionStuff
                 updatepostion = false;
                 try
                 {
-                    this.transform.parent = _helper.manager.camera.worldCamera.transform;
+                    this.transform.parent = _helper.behaviour.manager.camera.transform;
+                    //this.transform.parent = _helper.manager.camera.worldCamera.transform;
+                    
                     this.transform.localPosition = position;
-                    this.transform.rotation = _helper.manager.camera.worldCamera.transform.rotation;
+
+                    this.transform.rotation = _helper.behaviour.manager.camera.transform.rotation;
+                    //this.transform.rotation = _helper.manager.camera.worldCamera.transform.rotation;
                     this.transform.Rotate(-90.0f, 0f, 0f);
                     debug("Should have updated the parent, position, and rotation of the overlay. ");
                 }

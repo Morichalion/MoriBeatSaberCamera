@@ -58,7 +58,7 @@ public class MoriBScam : IPluginCameraBehaviour {
     // Author name.
     public string author => "Morichalion";
     // Plugin version.
-    public string version => "0.0.20";
+    public string version => "0.1.2";
     // Localy store the camera helper provided by LIV.
     PluginCameraHelper _helper;
     //float _elaspedTime;
@@ -448,11 +448,13 @@ public class MoriBScam : IPluginCameraBehaviour {
             } catch (Exception e) { debug("found it: " + e.Message); }
 
 
-                //Find reference WorldCamera so UI stuff can be attached to it. 
-                
-             Transform blah = _helper.manager.camera.worldCamera.transform;
-             //Found WorldCamera. Set overlay as child and resize/rotate it.
-             overlay.transform.parent = blah.transform;
+            //Find reference WorldCamera so UI stuff can be attached to it. 
+
+            //Transform blah = _helper.manager.camera.worldCamera.transform;
+            Transform blah = _helper.behaviour.manager.camera.transform;
+
+            //Found WorldCamera. Set overlay as child and resize/rotate it.
+            overlay.transform.parent = blah.transform;
              overlay.transform.transform.rotation = blah.transform.rotation;
              debug("trying to set overlay offset X:" + overlayOffsetX + " Y:" + overlayOffsetY);
              overlay.transform.transform.localPosition = new Vector3((overlayOffsetX + 0f), overlayOffsetY + .05f, 1.0f);
@@ -727,6 +729,7 @@ public class MoriBScam : IPluginCameraBehaviour {
 
     public float handsraised = 0.0f;
     private float buttondown = 0.0f;
+    /*
     public void ManualSwitcher()
     {
         try
@@ -780,7 +783,7 @@ public class MoriBScam : IPluginCameraBehaviour {
             }
         }
     }
-
+    */
     public void NotifyUser()
     {
         //adds a notification to the user.
@@ -907,7 +910,7 @@ public class MoriBScam : IPluginCameraBehaviour {
                     FollowCam();
                 }
             }
-        ManualSwitcher();
+        //ManualSwitcher();
     OnUpdateEnd:
         ;
     }
@@ -997,8 +1000,8 @@ public class MoriBScam : IPluginCameraBehaviour {
         Vector3 lookvector = camLook - camPosition;
         camRotation = Quaternion.LookRotation(lookvector);
 
-        _helper.UpdateCameraPose(camPosition, camRotation);
-        _helper.UpdateFov(_settings.fov);
+        _helper.UpdateCameraPose(camPosition, camRotation,_settings.fov);
+        
         
 
     }
@@ -1060,8 +1063,8 @@ public class MoriBScam : IPluginCameraBehaviour {
         camRotation = Quaternion.LookRotation(lookvector);
 
 
-        _helper.UpdateCameraPose(camPosition, camRotation);
-        _helper.UpdateFov(_settings.fov);
+        _helper.UpdateCameraPose(camPosition, camRotation,_settings.fov);
+        
 
     }
     /*
@@ -1187,8 +1190,7 @@ public class MoriBScam : IPluginCameraBehaviour {
         Quaternion rot = Quaternion.LookRotation(looky);
 
 
-        _helper.UpdateCameraPose(RigCamCamera.transform.position, rot);
-        _helper.UpdateFov(_settings.fov);
+        _helper.UpdateCameraPose(RigCamCamera.transform.position, rot,_settings.fov);
 
 
 
@@ -1220,8 +1222,8 @@ public class MoriBScam : IPluginCameraBehaviour {
         Vector3 lookvector = camLook - camPosition;
         camRotation = Quaternion.LookRotation(lookvector);
 
-        _helper.UpdateCameraPose(camPosition, camRotation);
-        _helper.UpdateFov(_settings.fov);
+        _helper.UpdateCameraPose(camPosition, camRotation,_settings.fov);
+        
     }
     public void FPCam()
     {
@@ -1235,7 +1237,7 @@ public class MoriBScam : IPluginCameraBehaviour {
         camPosition = Vector3.Lerp(camPosition, head.position, 5.0f * Time.deltaTime);
         camRotation = Quaternion.Lerp(camRotation, head.rotation, 5.0f * Time.deltaTime);
 
-        _helper.UpdateCameraPose(camPosition, camRotation);
-        _helper.UpdateFov(_settings.fov);
+        _helper.UpdateCameraPose(camPosition, camRotation, _settings.fov);
+        
     }
 }
