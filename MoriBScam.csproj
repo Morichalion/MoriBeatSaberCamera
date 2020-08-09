@@ -75,10 +75,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BeatSaberAutoCamera.cs" />
+    <Compile Include="BeatSaberStatus.cs" />
     <Compile Include="MonoBehaviors.cs" />
-    <Compile Include="MoriBScam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Reebooter.cs" />
+    <Compile Include="settings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeResolveReferences">
