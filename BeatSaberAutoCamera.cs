@@ -16,7 +16,7 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
 	public string ID => "MoriBeatSaberKam";
 	public string name => "Mori's Beat Saber Cam";
 	public string author => "Morichalion";
-	public string version => "0.1.3";
+	public string version => "0.2.0";
 
 	public IPluginSettings settings => _settings;
 
@@ -52,6 +52,7 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
 
 		//men.WorldCam = helper.manager.camera.worldCamera.transform;
 		men.WorldCam = helper.behaviour.manager.camera.transform;
+
 
 		CheckSettings();
 		if (overlayactive==true)

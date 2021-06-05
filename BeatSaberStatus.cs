@@ -68,7 +68,11 @@ public class BeatSaberStatus
 				menu = false;
 				ScoreUpdate(received["status"]["performance"]);
 			}
-			if (received["event"].ToString() == "menu")
+			if (
+			received["event"].ToString() == "finished" 
+			||
+			received["event"].ToString() == "failed" 
+			)
 			{
 				menu = true;
 			}
