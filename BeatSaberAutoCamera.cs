@@ -16,7 +16,7 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
 	public string ID => "MoriBeatSaberKam";
 	public string name => "Mori's Beat Saber Cam";
 	public string author => "Morichalion";
-	public string version => "0.2.0";
+	public string version => "0.2.2";
 
 	public IPluginSettings settings => _settings;
 

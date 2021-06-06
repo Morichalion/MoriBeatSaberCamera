@@ -44,7 +44,7 @@ public class BeatSaberStatus
 		};
 		ws.OnMessage += (sender, e) =>
 		{
-			//debug.Add(e.Data);
+			
 			
 			JObject received = JObject.Parse(e.Data);
 
@@ -59,19 +59,22 @@ public class BeatSaberStatus
 				debug.Add("Songname is " +songName);
 			}
 			
-			if (
-				received["event"].ToString() == "noteMissed"
-				||
-				received["event"].ToString() == "scoreChanged"
-				)
+			if (received["event"].ToString() == "noteMissed"||received["event"].ToString() == "scoreChanged")
 			{
-				menu = false;
+				//menu = false;
 				ScoreUpdate(received["status"]["performance"]);
 			}
+			if(received["event"].ToString()=="resume"){
+				 menu = false;
+			}		
 			if (
 			received["event"].ToString() == "finished" 
 			||
 			received["event"].ToString() == "failed" 
+			||
+			received["event"].ToString() == "menu"
+			||
+			received["event"].ToString() == "pause"
 			)
 			{
 				menu = true;
@@ -95,6 +98,7 @@ public class BeatSaberStatus
 				debug.Add("Beatsaber websocket error: OnMessage event");
 				debug.Add("Sender is: " +sender.ToString());
 				debug.Add("Verbose error is: " + e.Message.ToString());
+				debug.Add(e.Exception.Message.ToString());
 			}
 			else
 			{

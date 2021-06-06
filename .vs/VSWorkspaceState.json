@@ -1,6 +1,11 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\bin",
+    "\\obj",
+    "\\obj\\x64",
+    "\\obj\\x64\\Plugin",
+    "\\Properties"
   ],
   "SelectedNode": "\\settings.cs",
   "PreviewInSolutionExplorer": false

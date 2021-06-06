@@ -150,7 +150,7 @@ public partial class MoriBeatSaberCamera : IPluginCameraBehaviour
                         if (line.Contains("Debug ="))
                         {
                             string[] blah = line.Split('=');
-                            //debugLogging = blah[1];
+                            debugLogging = blah[1].Trim();
                         }
 
                         if(line.Contains("RigLook ="))
